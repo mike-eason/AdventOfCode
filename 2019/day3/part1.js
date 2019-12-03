@@ -15,58 +15,40 @@ fs.readFile(filePath, { encoding: 'utf8' }, (err, data) => {
         });
     });
 
+    const directions = {
+        'U': { x: 0, y: -1 },
+        'D': { x: 0, y: 1 },
+        'R': { x: 1, y: 0 },
+        'L': { x: -1, y: 0 },
+    };
+
     let wires = wireCommands.map(commands => {
         let segments = [];
         let x = 0, y = 0;
 
         commands.forEach(command => {
-            switch(command.direction) {
-                case 'U': 
-                    while (command.count--) {
-                        segments.push({
-                            x, y: y--
-                        });
-                    }
-                    break;
-                case 'D': 
-                    while (command.count--) {
-                        segments.push({
-                            x, y: y++
-                        });
-                    }
-                    break;
-                case 'L': 
-                    while (command.count--) {
-                        segments.push({
-                            x: x--, y
-                        });
-                    }
-                    break;
-                case 'R': 
-                    while (command.count--) {
-                        segments.push({
-                            x: x++, y
-                        });
-                    }
-                    break;
+            let dir = directions[command.direction];
+
+            while (command.count--) {
+                segments.push({ x, y });
+
+                x += dir.x;
+                y += dir.y;
             }
         });
 
         return segments;
     });
 
-    let wireA = wires[0];
-    let wireB = wires[1];
-
-    let intersectons = wireA.filter(a => {
-        return wireB.find(b => b.x && b.y && b.x == a.x && b.y == a.y) != null;
+    let intersectons = wires[0].filter(a => {
+        return wires[1].find(b => b.x == a.x && b.y == a.y) != null;
     });
 
     intersectons.forEach(i => {
         i.distance = manhattanDistance(0, 0, i.x, i.y);
     });
 
-    let closest = intersectons.sort((a, b) => a.distance - b.distance)[0];
+    let closest = intersectons.sort((a, b) => a.distance - b.distance)[1]; // Exclude first in array as it is 0,0
 
     console.log(closest.distance);
 });

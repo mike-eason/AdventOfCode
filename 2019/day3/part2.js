@@ -15,75 +15,46 @@ fs.readFile(filePath, { encoding: 'utf8' }, (err, data) => {
         });
     });
 
+    const directions = {
+        'U': { x: 0, y: -1 },
+        'D': { x: 0, y: 1 },
+        'R': { x: 1, y: 0 },
+        'L': { x: -1, y: 0 },
+    };
+
     let wires = wireCommands.map(commands => {
         let segments = [];
         let x = 0, y = 0, steps = 0;
 
         commands.forEach(command => {
-            switch(command.direction) {
-                case 'U': 
-                    while (command.count--) {
-                        segments.push({
-                            x, y: y--,
-                            steps
-                        });
+            let dir = directions[command.direction];
 
-                        steps++;
-                    }
-                    break;
-                case 'D': 
-                    while (command.count--) {
-                        segments.push({
-                            x, y: y++,
-                            steps
-                        });
+            while (command.count--) {
+                segments.push({ x, y, steps });
 
-                        steps++;
-                    }
-                    break;
-                case 'L': 
-                    while (command.count--) {
-                        segments.push({
-                            x: x--, y,
-                            steps
-                        });
-
-                        steps++;
-                    }
-                    break;
-                case 'R': 
-                    while (command.count--) {
-                        segments.push({
-                            x: x++, y,
-                            steps
-                        });
-
-                        steps++;
-                    }
-                    break;
+                x += dir.x;
+                y += dir.y;
+                steps++;
             }
         });
 
         return segments;
     });
 
-    let wireA = wires[0];
-    let wireB = wires[1];
-
-    let intersectons = wireA.filter(a => {
-        return wireB.find(b => b.x && b.y && b.x == a.x && b.y == a.y) != null;
+    let intersectons = wires[0].filter(a => {
+        return wires[1].find(b => b.x == a.x && b.y == a.y) != null;
     });
 
     intersectons.forEach(i => {
         i.distance = manhattanDistance(0, 0, i.x, i.y);
         
-        let segmentA = wireA.find(a => a.x == i.x && a.y == i.y);
-        let segmentB = wireB.find(a => a.x == i.x && a.y == i.y);
+        let segmentA = wires[0].find(a => a.x == i.x && a.y == i.y);
+        let segmentB = wires[1].find(b => b.x == i.x && b.y == i.y);
 
         i.combinedSteps = segmentA.steps + segmentB.steps;
     });
 
-    let closest = intersectons.sort((a, b) => a.combinedSteps - b.combinedSteps)[0];
+    let closest = intersectons.sort((a, b) => a.combinedSteps - b.combinedSteps)[1];
 
     console.log(closest.combinedSteps);
 });
