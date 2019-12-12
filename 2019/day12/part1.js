@@ -6,79 +6,27 @@ const filePath = path.join(__dirname, '/input.txt');
 fs.readFile(filePath, { encoding: 'utf8' }, (err, data) => {
     const lines = data.match(/[^\r\n]+/g);
 
-    let regex = /<x=(-?\d+),\sy=(-?\d+),\sz=(-?\d+)>/;
+    let moons = getMoons(lines);
 
-    let moons = lines.map(l => {
-        let match = regex.exec(l);
-
-        return {
-            position: {
-                x: parseInt(match[1]),
-                y: parseInt(match[2]),
-                z: parseInt(match[3])
-            },
-            velocity: {
-                x: 0,
-                y: 0,
-                z: 0
-            },
-            compared: []
-        }
-    });
-
-    let timeSteps = 999;
+    let timeSteps = 9;
 
     do {
         // Iterate through each moon, compare it with the other moons
         // and adjust velocity.
-        moons.forEach(m1 => {
-            moons.forEach(m2 => {
-                if (m1 == m2)
-                    return;
+        for (let a = 0; a < moons.length; a++) {
+            for (let b = 0; b < moons.length; b++) {
+                if (a == b)
+                    continue;
 
-                if (m1.compared.find(x => x == m2) || m2.compared.find(x => x == m1))
-                    return;
+                let m1 = moons[a],
+                    m2 = moons[b];
 
-                if (m2.position.x > m1.position.x) {
-                    m1.velocity.x++;
-                    m2.velocity.x--;
-                } else if (m1.position.x > m2.position.x) {
-                    m1.velocity.x--;
-                    m2.velocity.x++;
-                }
+                m1.applyGravity(m2);
+            }
+        }
 
-                if (m2.position.y > m1.position.y) {
-                    m1.velocity.y++;
-                    m2.velocity.y--;
-                } else if (m1.position.y > m2.position.y) {
-                    m1.velocity.y--;
-                    m2.velocity.y++;
-                }
-
-                if (m2.position.z > m1.position.z) {
-                    m1.velocity.z++;
-                    m2.velocity.z--;
-                } else if (m1.position.z > m2.position.z) {
-                    m1.velocity.z--;
-                    m2.velocity.z++;
-                }
-
-                m1.compared.push(m2);
-            });
-        });
-
-        // Apply velocity
-        moons.forEach(m => {
-            m.position.x += m.velocity.x;
-            m.position.y += m.velocity.y;
-            m.position.z += m.velocity.z;
-
-            //console.log(`pos=<x= ${m.position.x}, y= ${m.position.y}, z= ${m.position.z}>, vel=<x= ${m.velocity.x}, y= ${m.velocity.y}, z= ${m.velocity.z}>, `);
-
-            m.compared = [];
-        });
-
-        console.log('');
+        // Apply velocity to all moons
+        moons.forEach(m => m.move());
     } while (timeSteps--);
 
     let total = moons.reduce((sum, m) => {
@@ -95,3 +43,48 @@ fs.readFile(filePath, { encoding: 'utf8' }, (err, data) => {
 
     console.log(total);
 });
+
+function getMoons(data) {
+    let regex = /<x=(-?\d+),\sy=(-?\d+),\sz=(-?\d+)>/;
+
+    return data.map(l => {
+        let match = regex.exec(l);
+
+        return {
+            position: {
+                x: parseInt(match[1]),
+                y: parseInt(match[2]),
+                z: parseInt(match[3])
+            },
+            velocity: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            move: function() {
+                this.position.x += this.velocity.x;
+                this.position.y += this.velocity.y;
+                this.position.z += this.velocity.z;
+            },
+            applyGravity: function(otherMoon) {
+                if (otherMoon.position.x > this.position.x) {
+                    this.velocity.x++;
+                } else if (this.position.x > otherMoon.position.x) {
+                    this.velocity.x--;
+                }
+
+                if (otherMoon.position.y > this.position.y) {
+                    this.velocity.y++;
+                } else if (this.position.y > otherMoon.position.y) {
+                    this.velocity.y--;
+                }
+
+                if (otherMoon.position.z > this.position.z) {
+                    this.velocity.z++;
+                } else if (this.position.z > otherMoon.position.z) {
+                    this.velocity.z--;
+                }
+            }
+        }
+    });
+}
