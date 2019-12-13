@@ -6,45 +6,23 @@ const filePath = path.join(__dirname, '/input.txt');
 fs.readFile(filePath, { encoding: 'utf8' }, (err, data) => {
     data = data.split(',').map(x => parseInt(x));
 
-    let walls = [];
-    let blocks = [];
-    let paddles = [];
-    let balls = [];
-    
+    let blockCount = 0;
     let outputCache = [];
 
     let outputCallback = (output) => {
         outputCache.push(output);
 
-        if (outputCache.length == 3) {
-            let x = outputCache[0],
-                y = outputCache[1],
-                t = outputCache[2];
-
-            switch (t) {
-                case 1: 
-                    walls.push({ x, y });
-                break;
-                case 2: 
-                    blocks.push({ x, y });
-                break;
-                case 3: 
-                    paddles.push({ x, y });
-                break;
-                case 4:
-                    balls.push({ pX: x, pY: x, vX: 0, vY: 0 });
-                break;
+        if (outputCache.length % 3 == 0
+            && outputCache[outputCache.length - 1] == 2) { // Don't care about anything other than the block type for part 1.
+                blockCount++;
             }
-
-            outputCache = [];
-        }
     };
 
     let comp = computer(data, outputCallback);
 
     comp.compute([]);
     
-    console.log(blocks.length);
+    console.log(blockCount);
 });
 
 const computer = function(program, outputCallback) {
