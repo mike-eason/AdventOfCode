@@ -50,8 +50,6 @@ let deck = new Deck(CARD_COUNT);
 for (let i = 0; i < lines.length; i++) {
     let line = lines[i];
     
-    // console.log(line);
-
     if (line == 'deal into new stack') {
         deck.dealIntoNewStack();
         continue;
@@ -71,6 +69,4 @@ for (let i = 0; i < lines.length; i++) {
     }
 }
 
-// console.log(deck.cards.join());
-
-console.log(deck.cards[2019]);
+console.log(deck.cards.indexOf(2019));
