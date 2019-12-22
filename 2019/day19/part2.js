@@ -184,17 +184,16 @@ const computer = function(program, outputCallback, inputCallback) {
     }
 };
 
-let height = 100000,
-    x = 0;
 
-// Check the co-ordinates from the left edge (x = 0)
-// until we reach the beam. This will be the
-// BOTTOM LEFT corner of the box. We can then check
-// to see if the TOP RIGHT is in the beam also.
-// If it is then we can assume that the TOP LEFT
-// and BOTTOM RIGHT are also in the beam.
 
-for (let y = 100; y < height; y++) {
+// Check the co-ordinates from the left edge (x = 0) until we reach the beam. 
+// This will be the BOTTOM LEFT corner of the box. We can then check to see 
+// if the TOP RIGHT is in the beam also. If it is then we can assume that the 
+// TOP LEFT and BOTTOM RIGHT are also in the beam.
+
+let x = 0, y = 100;
+
+do {
     while (!isInBeam(x, y)) {
         x++;
     }
@@ -203,12 +202,10 @@ for (let y = 100; y < height; y++) {
         console.log(x * 10000 + (y - 99));
         break;
     }
-}
+} while (y++);
 
 function isInBeam(x, y) {
-    let program = data.slice(0); // copy the program.
-
-    let comp = computer(program);
+    let comp = computer(data.slice(0));
 
     comp.compute([x, y]);
 
