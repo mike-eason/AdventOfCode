@@ -1,14 +1,4 @@
-const fs = require('fs');
-const path = require('path');
+const text = require('fs').readFileSync('./input.txt', { encoding: 'utf8' });
 
-const filePath = path.join(__dirname, '/input.txt');
-
-fs.readFile(filePath, { encoding: 'utf8' }, (err, data) => {
-    const lines = data.match(/[^\r\n]+/g);
-
-    let result = lines.reduce((total, current) => {
-        return total + Math.floor(current / 3) - 2;
-    }, 0);
-
-    console.log(result);
-});
+console.log(text.match(/[^\r\n]+/g)
+	.reduce((s, v) => s + Math.floor(v / 3) - 2, 0));
